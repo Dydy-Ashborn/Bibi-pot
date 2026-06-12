@@ -1439,14 +1439,21 @@ function getMachineLabel(){
 }
 
 function getNutri(r){
-  let leg=0,prot=0,fec=0;
+  let leg=0,fruit=0,prot=0,fec=0,leg2=0;
   r.ingredients.forEach(i=>{
-    if(i.type==='legume'||i.type==='legumineuse'||i.type==='fruit')leg+=i.quantite;
+    if(i.type==='legume'||i.type==='legumineuse')leg+=i.quantite;
+    else if(i.type==='fruit')fruit+=i.quantite;
     else if(i.type==='proteine')prot+=i.quantite;
     else if(i.type==='feculent')fec+=i.quantite;
   });
-  const total=leg+prot+fec||1;
-  return{leg,prot,fec,legPct:Math.round(leg/total*100),protPct:Math.round(prot/total*100),fecPct:Math.round(fec/total*100)};
+  const total=leg+fruit+prot+fec||1;
+  return{
+    leg,fruit,prot,fec,
+    legPct:Math.round(leg/total*100),
+    fruitPct:Math.round(fruit/total*100),
+    protPct:Math.round(prot/total*100),
+    fecPct:Math.round(fec/total*100)
+  };
 }
 function cardHTML(r,section){
   const inCart=!!cart[r.slug];
@@ -1522,21 +1529,26 @@ function cardHTML(r,section){
       <div style="padding:12px 14px 0;">
         <div class="card-section-label" style="margin-top:0;"><i class="fa-solid fa-chart-pie"></i>Valeurs nutritives</div>
         <div style="background:var(--sand);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:7px;">
-          <div class="nutri-bar-row">
+          ${n.leg>0?`<div class="nutri-bar-row">
             <span class="nutri-bar-label">🥦 Légumes</span>
             <div class="nutri-bar-track"><div class="nutri-bar-fill fill-legume" style="width:${n.legPct}%"></div></div>
             <span class="nutri-bar-val">${n.leg}g</span>
-          </div>
-          ${n.prot?`<div class="nutri-bar-row">
+          </div>`:''}
+          ${n.fruit>0?`<div class="nutri-bar-row">
+            <span class="nutri-bar-label">🍎 Fruits</span>
+            <div class="nutri-bar-track"><div class="nutri-bar-fill" style="width:${n.fruitPct}%;background:#E07040;"></div></div>
+            <span class="nutri-bar-val">${n.fruit}g</span>
+          </div>`:''}
+          ${n.prot>0?`<div class="nutri-bar-row">
             <span class="nutri-bar-label">🍗 Protéines</span>
             <div class="nutri-bar-track"><div class="nutri-bar-fill fill-proteine" style="width:${n.protPct}%"></div></div>
             <span class="nutri-bar-val">${n.prot}g</span>
           </div>`:''}
-          <div class="nutri-bar-row">
+          ${n.fec>0?`<div class="nutri-bar-row">
             <span class="nutri-bar-label">🌾 Féculents</span>
             <div class="nutri-bar-track"><div class="nutri-bar-fill fill-feculent" style="width:${n.fecPct}%"></div></div>
             <span class="nutri-bar-val">${n.fec}g</span>
-          </div>
+          </div>`:''}
         </div>
       </div>
 
