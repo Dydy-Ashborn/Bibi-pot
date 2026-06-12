@@ -389,12 +389,15 @@ body{font-family:'Nunito',sans-serif;background:var(--sand);color:var(--slate);h
   <div class="page-title">
     <div class="page-title-left"><i class="fa-solid fa-temperature-low"></i>Mon frigo</div>
   </div>
-  <div style="text-align:center;padding:32px 20px 20px;">
-    <div style="width:72px;height:72px;background:var(--green-pale);border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;"><i class="fa-solid fa-temperature-low" style="font-size:2rem;color:var(--green);"></i></div>
-    <div style="font-size:1.1rem;font-weight:900;color:var(--slate);margin-bottom:8px;">Qu'est-ce qu'il y a dans ton frigo ?</div>
-    <div style="font-size:0.85rem;font-weight:600;color:var(--slate-light);margin-bottom:24px;line-height:1.5;">Coche tes ingrédients et on te propose les recettes faisables.</div>
+<div style="text-align:center;padding:32px 20px 20px;">
+  <div style="width:72px;height:72px;background:var(--green-pale);border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;"><i class="fa-solid fa-temperature-low" style="font-size:2rem;color:var(--green);"></i></div>
+  <div style="font-size:1.1rem;font-weight:900;color:var(--slate);margin-bottom:8px;">Qu'est-ce qu'il y a dans ton frigo ?</div>
+  <div style="font-size:0.85rem;font-weight:600;color:var(--slate-light);margin-bottom:24px;line-height:1.5;">Coche tes ingrédients et on te propose les recettes faisables.</div>
+  <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
     <button onclick="startFrigoWizard()" style="background:var(--green);color:white;border:none;border-radius:var(--radius);padding:14px 28px;font-family:'Nunito',sans-serif;font-size:1rem;font-weight:800;cursor:pointer;box-shadow:0 3px 12px rgba(45,106,79,0.25);display:inline-flex;align-items:center;gap:8px;"><i class="fa-solid fa-wand-magic-sparkles"></i>Mon frigo</button>
+    <button onclick="clearFrigo()" id="btn-clear-frigo" style="display:none;background:var(--sand);color:var(--danger);border:1.5px solid var(--sand-dark);border-radius:var(--radius);padding:14px 20px;font-family:'Nunito',sans-serif;font-size:0.9rem;font-weight:800;cursor:pointer;display:none;align-items:center;gap:8px;"><i class="fa-solid fa-trash-can"></i>Vider</button>
   </div>
+</div>
   <div id="frigo-matches-panel"></div>
 </div>
 
@@ -616,6 +619,7 @@ const DEFAULT_POTS = [
    ingredients:[{nom:"Brocoli",quantite:220,unite:"g",type:"legume"},{nom:"Pomme de terre cuite",quantite:80,unite:"g",type:"feculent"},{nom:"Huile de colza",quantite:5,unite:"ml",type:"autre"}],
    etapes:["Couper le brocoli en bouquets.","Cuire à la vapeur 12 min.","Mixer très finement avec la pomme de terre.","Ajouter l'huile hors du feu.","Répartir dans 3 pots."]},
   // ── 6-8 MOIS : 1ères protéines (10-15g), mixé ──
+  // ── 6-8 MOIS : 1ères protéines (10-15g), mixé ──
   {slug:"chili_doux",nom:"Chili doux bébé",categorie:"mijoté",age_min:6,favori:true,nb_pots:3,poids_pot_g:200,texture:"Mixée",
    ingredients:[{nom:"Carotte",quantite:250,unite:"g",type:"legume"},{nom:"Courgette",quantite:150,unite:"g",type:"legume"},{nom:"Tomate",quantite:65,unite:"g",type:"legume"},{nom:"Bœuf haché",quantite:30,unite:"g",type:"proteine"},{nom:"Riz cuit",quantite:90,unite:"g",type:"feculent"}],
    etapes:["Couper les légumes en dés.","Cuire les carottes 10 min vapeur, ajouter courgettes et tomates 8 min.","Cuire le bœuf haché séparément à cœur.","Mélanger et mixer finement.","Répartir dans 3 pots."]},
@@ -631,6 +635,27 @@ const DEFAULT_POTS = [
   {slug:"haricots_verts_poulet",nom:"Haricots verts-poulet doux",categorie:"légumes",age_min:6,favori:false,nb_pots:3,poids_pot_g:180,texture:"Mixée",
    ingredients:[{nom:"Haricots verts cuits",quantite:200,unite:"g",type:"legume"},{nom:"Pomme de terre cuite",quantite:120,unite:"g",type:"feculent"},{nom:"Poulet",quantite:30,unite:"g",type:"proteine"},{nom:"Huile de colza",quantite:5,unite:"ml",type:"autre"}],
    etapes:["Cuire les haricots verts 12 min vapeur.","Cuire le poulet à cœur, émietter.","Mixer très finement l'ensemble.","Ajouter l'huile hors du feu.","Répartir dans 3 pots."]},
+  {slug:"patate_douce_lentilles",nom:"Patate douce-lentilles corail",categorie:"végétarien",age_min:6,favori:false,nb_pots:3,poids_pot_g:200,texture:"Mixée",
+   ingredients:[{nom:"Patate douce",quantite:250,unite:"g",type:"legume"},{nom:"Lentilles corail cuites",quantite:120,unite:"g",type:"legumineuse"},{nom:"Carotte",quantite:100,unite:"g",type:"legume"},{nom:"Huile de colza",quantite:5,unite:"ml",type:"autre"}],
+   etapes:["Éplucher et couper la patate douce et la carotte.","Cuire à la vapeur 15 min.","Cuire les lentilles 10 min à l'eau.","Mixer finement l'ensemble.","Ajouter l'huile hors du feu.","Répartir dans 3 pots."]},
+  {slug:"poireau_saumon_riz",nom:"Poireau-saumon tout doux",categorie:"poisson",age_min:6,favori:false,nb_pots:3,poids_pot_g:200,texture:"Mixée",
+   ingredients:[{nom:"Poireau",quantite:180,unite:"g",type:"legume"},{nom:"Saumon",quantite:30,unite:"g",type:"proteine"},{nom:"Pomme de terre cuite",quantite:130,unite:"g",type:"feculent"},{nom:"Huile de colza",quantite:5,unite:"ml",type:"autre"}],
+   etapes:["Émincer le poireau, cuire à la vapeur 12 min.","Cuire le saumon 8 min vapeur, émietter (vérifier arêtes).","Mixer très finement avec la pomme de terre.","Ajouter l'huile hors du feu.","Répartir dans 3 pots."]},
+  {slug:"courgette_veau_pdt",nom:"Courgette-veau fondant",categorie:"légumes",age_min:6,favori:false,nb_pots:3,poids_pot_g:200,texture:"Mixée",
+   ingredients:[{nom:"Courgette",quantite:220,unite:"g",type:"legume"},{nom:"Veau",quantite:30,unite:"g",type:"proteine"},{nom:"Pomme de terre cuite",quantite:120,unite:"g",type:"feculent"},{nom:"Huile de colza",quantite:5,unite:"ml",type:"autre"}],
+   etapes:["Couper la courgette, cuire à la vapeur 12 min.","Cuire le veau 15 min à l'eau frémissante, hacher finement.","Mixer très finement l'ensemble.","Ajouter l'huile hors du feu.","Répartir dans 3 pots."]},
+  {slug:"epinards_poulet_pdt",nom:"Épinards-poulet crémeux",categorie:"légumes",age_min:6,favori:false,nb_pots:3,poids_pot_g:200,texture:"Mixée",
+   ingredients:[{nom:"Épinards cuits",quantite:200,unite:"g",type:"legume"},{nom:"Poulet",quantite:30,unite:"g",type:"proteine"},{nom:"Pomme de terre cuite",quantite:130,unite:"g",type:"feculent"},{nom:"Huile de colza",quantite:5,unite:"ml",type:"autre"}],
+   etapes:["Cuire les épinards 5 min vapeur.","Cuire le poulet à cœur, hacher finement.","Mixer très finement l'ensemble avec la pomme de terre.","Ajouter l'huile hors du feu.","Répartir dans 3 pots."]},
+  {slug:"butternut_dinde_semoule",nom:"Butternut-dinde douce",categorie:"oriental",age_min:6,favori:false,nb_pots:3,poids_pot_g:200,texture:"Mixée",
+   ingredients:[{nom:"Butternut",quantite:220,unite:"g",type:"legume"},{nom:"Dinde",quantite:30,unite:"g",type:"proteine"},{nom:"Carotte",quantite:100,unite:"g",type:"legume"},{nom:"Semoule cuite",quantite:90,unite:"g",type:"feculent"}],
+   etapes:["Éplucher et couper le butternut et la carotte.","Cuire à la vapeur 15 min.","Cuire la dinde à cœur, hacher finement.","Préparer la semoule.","Mixer finement l'ensemble.","Répartir dans 3 pots."]},
+  {slug:"petits_pois_jambon_riz",nom:"Petits pois-jambon tout doux",categorie:"légumes",age_min:6,favori:false,nb_pots:3,poids_pot_g:200,texture:"Mixée",
+   ingredients:[{nom:"Petits pois cuits",quantite:200,unite:"g",type:"legume"},{nom:"Jambon blanc (sans sel ajouté)",quantite:30,unite:"g",type:"proteine"},{nom:"Pomme de terre cuite",quantite:120,unite:"g",type:"feculent"},{nom:"Huile de colza",quantite:5,unite:"ml",type:"autre"}],
+   etapes:["Cuire les petits pois 8 min vapeur.","Hacher finement le jambon.","Mixer très finement l'ensemble avec la pomme de terre.","Ajouter l'huile hors du feu.","Répartir dans 3 pots."]},
+  {slug:"panais_poulet_riz",nom:"Panais-poulet doux",categorie:"légumes",age_min:6,favori:false,nb_pots:3,poids_pot_g:200,texture:"Mixée",
+   ingredients:[{nom:"Panais",quantite:200,unite:"g",type:"legume"},{nom:"Poulet",quantite:30,unite:"g",type:"proteine"},{nom:"Carotte",quantite:100,unite:"g",type:"legume"},{nom:"Riz cuit",quantite:90,unite:"g",type:"feculent"}],
+   etapes:["Éplucher et couper le panais et la carotte.","Cuire à la vapeur 15 min.","Cuire le poulet à cœur, hacher finement.","Mixer finement l'ensemble avec le riz.","Répartir dans 3 pots."]},
   // ── 8-10 MOIS : morceaux fondants, 20-30g protéines ──
   {slug:"cassoulet_bebe",nom:"Cassoulet bébé",categorie:"français",age_min:8,favori:true,nb_pots:3,poids_pot_g:200,texture:"Morceaux fondants",
    ingredients:[{nom:"Poireau",quantite:150,unite:"g",type:"legume"},{nom:"Haricots blancs cuits",quantite:180,unite:"g",type:"legumineuse"},{nom:"Tomate",quantite:135,unite:"g",type:"legume"},{nom:"Dinde",quantite:45,unite:"g",type:"proteine"},{nom:"Pomme de terre cuite",quantite:90,unite:"g",type:"feculent"}],
@@ -650,6 +675,27 @@ const DEFAULT_POTS = [
   {slug:"asperge_saumon",nom:"Asperges vertes-saumon printanier",categorie:"poisson",age_min:8,favori:false,nb_pots:3,poids_pot_g:200,texture:"Morceaux fondants",
    ingredients:[{nom:"Asperge",quantite:180,unite:"g",type:"legume"},{nom:"Saumon",quantite:45,unite:"g",type:"proteine"},{nom:"Petits pois cuits",quantite:150,unite:"g",type:"legume"},{nom:"Riz cuit",quantite:90,unite:"g",type:"feculent"}],
    etapes:["Couper les asperges en tronçons.","Cuire asperges et petits pois à la vapeur 8 min.","Cuire le saumon 8 min, émietter (vérifier arêtes).","Mélanger avec le riz.","Répartir dans 3 pots."]},
+  {slug:"lentilles_carotte_veau",nom:"Lentilles-carotte au veau",categorie:"mijoté",age_min:8,favori:false,nb_pots:3,poids_pot_g:200,texture:"Morceaux fondants",
+   ingredients:[{nom:"Lentilles vertes cuites",quantite:160,unite:"g",type:"legumineuse"},{nom:"Carotte",quantite:150,unite:"g",type:"legume"},{nom:"Veau",quantite:45,unite:"g",type:"proteine"},{nom:"Pomme de terre cuite",quantite:90,unite:"g",type:"feculent"}],
+   etapes:["Couper la carotte en petits dés, cuire 12 min vapeur.","Cuire les lentilles 20 min à l'eau.","Cuire le veau à cœur, effilocher.","Mélanger — laisser des morceaux fondants.","Répartir dans 3 pots."]},
+  {slug:"potimarron_poulet_semoule",nom:"Potimarron-poulet doré",categorie:"mijoté",age_min:8,favori:false,nb_pots:3,poids_pot_g:200,texture:"Morceaux fondants",
+   ingredients:[{nom:"Potimarron",quantite:230,unite:"g",type:"legume"},{nom:"Poulet",quantite:45,unite:"g",type:"proteine"},{nom:"Carotte",quantite:120,unite:"g",type:"legume"},{nom:"Semoule cuite",quantite:90,unite:"g",type:"feculent"}],
+   etapes:["Éplucher et couper le potimarron et la carotte.","Cuire à la vapeur 15 min.","Cuire le poulet à cœur, effilocher.","Mélanger avec la semoule — garder des petits morceaux.","Répartir dans 3 pots."]},
+  {slug:"epinards_saumon_riz",nom:"Épinards-saumon fondant",categorie:"poisson",age_min:8,favori:false,nb_pots:3,poids_pot_g:200,texture:"Morceaux fondants",
+   ingredients:[{nom:"Épinards cuits",quantite:180,unite:"g",type:"legume"},{nom:"Saumon",quantite:45,unite:"g",type:"proteine"},{nom:"Pomme de terre cuite",quantite:130,unite:"g",type:"feculent"},{nom:"Huile de colza",quantite:5,unite:"ml",type:"autre"}],
+   etapes:["Cuire les épinards 5 min vapeur.","Cuire le saumon 8 min, émietter (vérifier arêtes).","Mélanger avec la pomme de terre écrasée grossièrement.","Ajouter l'huile hors du feu.","Répartir dans 3 pots."]},
+  {slug:"patate_douce_boeuf_haricots",nom:"Patate douce-bœuf aux haricots",categorie:"mijoté",age_min:8,favori:false,nb_pots:3,poids_pot_g:200,texture:"Morceaux fondants",
+   ingredients:[{nom:"Patate douce",quantite:200,unite:"g",type:"legume"},{nom:"Bœuf haché",quantite:45,unite:"g",type:"proteine"},{nom:"Haricots blancs cuits",quantite:150,unite:"g",type:"legumineuse"},{nom:"Carotte",quantite:100,unite:"g",type:"legume"}],
+   etapes:["Couper la patate douce et la carotte, cuire 15 min vapeur.","Faire revenir le bœuf haché à cœur.","Mélanger avec les haricots blancs — écraser légèrement.","Répartir dans 3 pots."]},
+  {slug:"fenouil_dinde_pdt",nom:"Fenouil confit-dinde",categorie:"français",age_min:8,favori:false,nb_pots:3,poids_pot_g:200,texture:"Morceaux fondants",
+   ingredients:[{nom:"Fenouil",quantite:180,unite:"g",type:"legume"},{nom:"Dinde",quantite:45,unite:"g",type:"proteine"},{nom:"Pomme de terre cuite",quantite:130,unite:"g",type:"feculent"},{nom:"Carotte",quantite:100,unite:"g",type:"legume"}],
+   etapes:["Émincer le fenouil et couper la carotte.","Cuire à la vapeur 15 min.","Cuire la dinde à cœur, hacher.","Mélanger avec la pomme de terre — garder des petits morceaux.","Répartir dans 3 pots."]},
+  {slug:"butternut_lentilles_corail",nom:"Butternut-lentilles corail fondant",categorie:"végétarien",age_min:8,favori:false,nb_pots:3,poids_pot_g:200,texture:"Morceaux fondants",
+   ingredients:[{nom:"Butternut",quantite:220,unite:"g",type:"legume"},{nom:"Lentilles corail cuites",quantite:150,unite:"g",type:"legumineuse"},{nom:"Courgette",quantite:120,unite:"g",type:"legume"},{nom:"Riz cuit",quantite:90,unite:"g",type:"feculent"}],
+   etapes:["Éplucher et couper le butternut, cuire 15 min vapeur.","Cuire les lentilles 10 min à l'eau.","Cuire la courgette 8 min vapeur.","Mélanger l'ensemble — laisser des morceaux fondants.","Répartir dans 3 pots."]},
+  {slug:"brocoli_jambon_pdt",nom:"Brocoli-jambon gratiné",categorie:"français",age_min:8,favori:false,nb_pots:3,poids_pot_g:200,texture:"Morceaux fondants",
+   ingredients:[{nom:"Brocoli",quantite:220,unite:"g",type:"legume"},{nom:"Jambon blanc (sans sel ajouté)",quantite:45,unite:"g",type:"proteine"},{nom:"Pomme de terre cuite",quantite:130,unite:"g",type:"feculent"},{nom:"Huile de colza",quantite:5,unite:"ml",type:"autre"}],
+   etapes:["Couper le brocoli en bouquets, cuire 12 min vapeur.","Hacher le jambon en petits morceaux.","Écraser grossièrement la pomme de terre.","Mélanger l'ensemble — garder des morceaux de brocoli.","Ajouter l'huile hors du feu.","Répartir dans 3 pots."]},
   // ── 10-12 MOIS : textures mixtes, plats mijotés ──
   {slug:"bolognaise_bebe",nom:"Bolognaise bébé",categorie:"italien",age_min:10,favori:false,nb_pots:3,poids_pot_g:200,texture:"Morceaux fondants",
    ingredients:[{nom:"Bœuf haché",quantite:45,unite:"g",type:"proteine"},{nom:"Tomate concassée",quantite:165,unite:"g",type:"legume"},{nom:"Courgette",quantite:120,unite:"g",type:"legume"},{nom:"Carotte",quantite:120,unite:"g",type:"legume"},{nom:"Pâtes cuites",quantite:90,unite:"g",type:"feculent"}],
@@ -730,6 +776,18 @@ const DEFAULT_COMPOTES = [
 ];
 
 // ═══════ FRIGO CATEGORIES ═══════
+const CAT_EMOJI={legumes:'🥦',fruits:'🍎',proteines:'🍗',legumineuses:'🫘',feculents:'🌾'};
+const ITEM_EMOJI={
+  'Carotte':'🥕','Courgette':'🥒','Tomate':'🍅','Patate douce':'🍠','Poireau':'🧅','Épinards':'🥬',
+  'Haricots verts':'🫘','Petits pois':'🫛','Navet':'🫚','Panais':'🥕','Butternut':'🎃','Potimarron':'🎃',
+  'Chou-fleur':'🥦','Brocoli':'🥦','Céleri':'🥬','Fenouil':'🌿','Poivron rouge':'🫑','Aubergine':'🍆',
+  'Betterave':'❤️','Asperge':'🌱',
+  'Pomme':'🍎','Poire':'🍐','Banane':'🍌','Fraise':'🍓','Framboise':'🫐','Myrtille':'🫐',
+  'Pêche':'🍑','Abricot':'🟠','Mangue':'🥭','Ananas':'🍍','Prune':'🟣',
+  'Poulet':'🍗','Bœuf haché':'🥩','Veau':'🥩','Dinde':'🍗','Saumon':'🐟','Jambon blanc':'🥓',
+  'Lentilles corail':'🫘','Lentilles vertes':'🫘','Haricots blancs':'🫘','Pois chiches':'🫘',
+  'Riz':'🍚','Semoule':'🌾','Pâtes':'🍝','Pomme de terre':'🥔'
+};
 const FRIGO_DATA={
   legumes:{label:"Légumes",icon:"fa-carrot",cls:"legumes",items:[
     {n:"Carotte",i:"fa-carrot"},{n:"Courgette",i:"fa-leaf"},{n:"Tomate",i:"fa-circle"},{n:"Patate douce",i:"fa-wheat-awn"},
@@ -816,8 +874,9 @@ function renderAgeBanner(){
   if(!el)return;
   if(!a){el.innerHTML='';return;}
   const tier=getAgeTier(a);
-  const count=DEFAULT_POTS.filter(r=>r.age_min<=a).length;
-  el.innerHTML=`<div class="age-banner"><i class="fa-solid fa-baby"></i><div><div class="age-banner-title">Pour ${profile.prenom} — ${tier.desc}</div><div class="age-banner-sub">${count} recette${count!==1?'s':''} adaptée${count!==1?'s':''} · Les autres sont masquées</div></div></div>`;
+  const countPots=DEFAULT_POTS.filter(r=>r.age_min>=tier.min&&r.age_min<=tier.max).length;
+  const countCompotes=DEFAULT_COMPOTES.length;
+  el.innerHTML=`<div class="age-banner"><i class="fa-solid fa-baby"></i><div><div class="age-banner-title">Pour ${profile.prenom} — ${tier.desc}</div><div class="age-banner-sub">${countPots} petit${countPots>1?'s':''} pot${countPots>1?'s':''} adaptés · ${countCompotes} compotes disponibles</div></div></div>`;
 }
 
 function getFiltered(section){
@@ -1018,6 +1077,7 @@ function startFrigoWizard(){
 
 function closeWizard(){
   document.getElementById('frigo-wizard').style.display='none';
+  save();
   renderFrigoMatches();
 }
 
@@ -1025,24 +1085,54 @@ function renderWizardStep(){
   const catKey=WIZARD_CATS[wizardStep];
   const cat=FRIGO_DATA[catKey];
   const total=WIZARD_CATS.length;
-  document.getElementById('wizard-title').textContent=cat.label;
+  document.getElementById('wizard-title').innerHTML=`<span style="margin-right:8px;">${CAT_EMOJI[catKey]||'🥄'}</span>${cat.label}`;
   document.getElementById('wizard-step').textContent=(wizardStep+1)+' / '+total;
   document.getElementById('wizard-progress').style.width=((wizardStep+1)/total*100)+'%';
   document.getElementById('wizard-back-btn').style.opacity=wizardStep===0?'0.3':'1';
   document.getElementById('wizard-back-btn').disabled=wizardStep===0;
   const isLast=wizardStep===total-1;
   document.getElementById('wizard-next-btn').innerHTML=isLast?'<i class="fa-solid fa-wand-magic-sparkles"></i>Voir les recettes':'Suivant<i class="fa-solid fa-arrow-right"></i>';
-  const body=document.getElementById('wizard-body');
-  body.innerHTML=`<div style="font-size:0.8rem;font-weight:600;color:var(--slate-light);margin-bottom:14px;line-height:1.5;">Coche ce que tu as dans ton frigo :</div>
-  <div class="frigo-ing-grid">${cat.items.map(item=>{
-    const sel=frigo.some(f=>f.toLowerCase()===item.n.toLowerCase());
-    return`<button class="frigo-ing-btn${sel?' selected':''}" data-nom="${item.n}" onclick="toggleFrigoItem('${item.n}')">
-      <div class="chk-dot" style="display:${sel?'flex':'none'}"><i class="fa-solid fa-check"></i></div>
-      <i class="fa-solid ${item.i} ii"></i>${item.n}
-    </button>`;
-  }).join('')}</div>`;
-}
 
+  const selectedCount=cat.items.filter(item=>frigo.some(f=>f.toLowerCase()===item.n.toLowerCase())).length;
+  const totalFrigo=frigo.length;
+
+  const body=document.getElementById('wizard-body');
+  body.innerHTML=`
+  <div style="margin-bottom:18px;">
+    <div style="font-size:1rem;font-weight:900;color:var(--slate);margin-bottom:4px;">Qu'est-ce que tu as comme <span style="color:var(--green);">${cat.label.toLowerCase()}</span> ?</div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div style="flex:1;height:6px;background:var(--sand-dark);border-radius:10px;overflow:hidden;">
+        <div style="height:100%;background:var(--green);border-radius:10px;width:${selectedCount===0?0:Math.min(100,selectedCount/cat.items.length*100)}%;transition:width 0.3s;"></div>
+      </div>
+      <div style="font-size:0.75rem;font-weight:800;color:${selectedCount>0?'var(--green)':'var(--slate-light)'};white-space:nowrap;">${selectedCount} / ${cat.items.length}</div>
+    </div>
+    ${totalFrigo>0?`<div style="margin-top:8px;font-size:0.72rem;font-weight:700;color:var(--slate-light);display:flex;align-items:center;gap:5px;"><i class="fa-solid fa-basket-shopping" style="color:var(--green);font-size:0.65rem;"></i>${totalFrigo} ingrédient${totalFrigo>1?'s':''} au total dans ton frigo</div>`:''}
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+    ${cat.items.map(item=>{
+      const sel=frigo.some(f=>f.toLowerCase()===item.n.toLowerCase());
+      const emoji=ITEM_EMOJI[item.n]||'🥄';
+      return`<button onclick="toggleFrigoItem('${item.n}')" data-nom="${item.n}" style="
+          position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;
+          gap:5px;padding:16px 8px 12px;border-radius:16px;
+          border:2.5px solid ${sel?'var(--green)':'var(--sand-dark)'};
+          background:${sel?'linear-gradient(135deg,#e8f8ee 0%,#d0f0dc 100%)':'var(--white)'};
+          cursor:pointer;font-family:'Nunito',sans-serif;
+          font-size:0.72rem;font-weight:800;
+          color:${sel?'var(--green)':'var(--slate-mid)'};
+          text-align:center;line-height:1.3;
+          transition:all 0.15s;
+          box-shadow:${sel?'0 4px 14px rgba(45,106,79,0.22)':'0 1px 5px rgba(0,0,0,0.05)'};
+          transform:${sel?'translateY(-2px) scale(1.04)':'scale(1)'};
+          min-height:86px;">
+        ${sel?`<div style="position:absolute;top:7px;right:7px;width:18px;height:18px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(45,106,79,0.3);"><i class="fa-solid fa-check" style="font-size:0.5rem;color:white;"></i></div>`:''}
+        <div style="font-size:2rem;line-height:1;filter:${sel?'none':'grayscale(0.2)'};transition:filter 0.15s;">${emoji}</div>
+        <div style="padding:0 2px;">${item.n}</div>
+        ${sel?`<div style="font-size:0.6rem;font-weight:700;color:var(--green);background:white;padding:2px 7px;border-radius:20px;border:1px solid var(--green-light);">✓ Dans mon frigo</div>`:''}
+      </button>`;
+    }).join('')}
+  </div>`;
+}
 function wizardNext(){
   if(wizardStep<WIZARD_CATS.length-1){wizardStep++;renderWizardStep();}
   else{closeWizard();}
@@ -1056,60 +1146,109 @@ function toggleFrigoItem(nom){
   const idx=frigo.findIndex(f=>f.toLowerCase()===nom.toLowerCase());
   if(idx>=0)frigo.splice(idx,1);else frigo.push(nom);
   save();
-  const btns=document.querySelectorAll(`.frigo-ing-btn[data-nom="${nom}"]`);
-  btns.forEach(btn=>{
-    const sel=frigo.some(f=>f.toLowerCase()===nom.toLowerCase());
-    btn.classList.toggle('selected',sel);
-    const dot=btn.querySelector('.chk-dot');
-    if(dot)dot.style.display=sel?'flex':'none';
-  });
+  renderWizardStep();
 }
 
 function getFrigoMatches(){
-  if(!frigo.length)return[];
+  if(!frigo.length)return{exact:[],almost:[]};
   const a=ageInMonths();
   const all=[...DB.pots.map(r=>({r,section:'pots'})),...DB.compotes.map(r=>({r,section:'compotes'}))];
-  return all.filter(({r,section})=>{
+  const exact=[];
+  const almost=[];
+  all.forEach(({r,section})=>{
     if(section==='pots'&&a>0){
       const tier=getAgeTier(a);
-      if(r.age_min<tier.min||r.age_min>tier.max)return false;
+      if(r.age_min<tier.min||r.age_min>tier.max)return;
     }
     const mainIngs=r.ingredients.filter(i=>i.type!=='autre');
-    return mainIngs.every(i=>frigo.some(f=>i.nom.toLowerCase().includes(f.toLowerCase())||f.toLowerCase().includes(i.nom.toLowerCase().split(' ')[0])));
-  }).map(({r,section})=>({r,section}));
+    const missing=mainIngs.filter(i=>!frigo.some(f=>i.nom.toLowerCase().includes(f.toLowerCase())||f.toLowerCase().includes(i.nom.toLowerCase().split(' ')[0])));
+    if(missing.length===0)exact.push({r,section});
+    else if(missing.length<=2)almost.push({r,section,missing});
+  });
+  return{exact,almost};
 }
 
 function renderFrigoMatches(){
   const panel=document.getElementById('frigo-matches-panel');
   if(!panel)return;
-  if(!frigo.length){
-    panel.innerHTML=``;
-    return;
-  }
-  const matches=getFrigoMatches();
-  if(!matches.length){
-    panel.innerHTML=`<div class="frigo-empty"><i class="fa-solid fa-face-sad-tear"></i><p>Aucune recette complète<br>avec tes ingrédients.</p></div>`;
-    return;
-  }
-  panel.innerHTML=`<div style="font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;color:var(--slate-light);margin-bottom:10px;display:flex;align-items:center;gap:6px;"><i class="fa-solid fa-wand-magic-sparkles" style="color:var(--green);font-size:0.68rem;"></i>${matches.length} recette${matches.length!==1?'s':''} réalisable${matches.length!==1?'s':''}</div>`+
-  matches.map(({r,section})=>{
-    const inCart=!!cart[r.slug];
-    const isC=section==='compotes';
-    const ageLabel=r.age_min!==undefined?getAgeLabel(r.age_min):'';
-    return`<div class="match-card" style="cursor:pointer;" onclick="openRecipeModal('${r.slug}','${section}')">
-      <div class="match-inner">
-        <div class="card-icon-wrap${isC?' peach':''}"><i class="fa-solid fa-${isC?'apple-whole':'jar'}"></i></div>
-        <div class="match-info">
-          <div class="match-name">${r.nom}</div>
-          <div class="match-tags"><span class="tag tag-cat"><i class="fa-solid fa-tag"></i>${r.categorie}</span>${ageLabel}</div>
-        </div>
-        <button class="btn-cart${inCart?' in-cart':''}" onclick="event.stopPropagation();toggleCart('${r.slug}','${section}')"><i class="fa-solid fa-${inCart?'check':'plus'}"></i></button>
-      </div>
-      <div class="match-ok"><i class="fa-solid fa-circle-check"></i>Tu as tout ce qu'il faut !</div>
-    </div>`;
-  }).join('');
-}
+  if(!frigo.length){panel.innerHTML='';return;}
 
+  const {exact,almost}=getFrigoMatches();
+
+  if(!exact.length&&!almost.length){
+    panel.innerHTML=`<div class="frigo-empty"><i class="fa-solid fa-face-sad-tear"></i><p>Aucune recette trouvée<br>avec ces ingrédients.</p></div>`;
+    return;
+  }
+
+  let html='';
+
+  if(exact.length){
+    html+=`<div style="font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;color:var(--slate-light);margin:0 16px 10px;display:flex;align-items:center;gap:6px;">
+      <i class="fa-solid fa-circle-check" style="color:var(--green);font-size:0.68rem;"></i>${exact.length} recette${exact.length>1?'s':''} réalisable${exact.length>1?'s':''} maintenant
+    </div><div style="padding:0 16px;">`;
+    html+=exact.map(({r,section})=>frigoCardHTML(r,section,[])).join('');
+    html+=`</div>`;
+  }
+
+  if(almost.length){
+    html+=`<div style="font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;color:var(--slate-light);margin:${exact.length?'16px':0} 16px 10px;display:flex;align-items:center;gap:6px;">
+      <i class="fa-solid fa-cart-plus" style="color:var(--warn);font-size:0.68rem;"></i>${almost.length} recette${almost.length>1?'s':''} à 1-2 ingrédients près
+    </div><div style="padding:0 16px 80px;">`;
+    html+=almost.map(({r,section,missing})=>frigoCardHTML(r,section,missing)).join('');
+    html+=`</div>`;
+  } else {
+    html+=`<div style="height:80px;"></div>`;
+  }
+
+ panel.innerHTML=html;
+  updateFrigoClearBtn();
+
+}
+function frigoCardHTML(r,section,missing){
+  const inCart=!!cart[r.slug];
+  const isC=section==='compotes';
+  const n=getNutri(r);
+  const ageLabel=r.age_min!==undefined?getAgeLabel(r.age_min):'';
+  const textureTag=r.texture?`<div class="texture-tag"><i class="fa-solid fa-blender"></i>${r.texture}</div>`:'';
+  const isAlmost=missing.length>0;
+  return`<div class="recipe-card" id="fcard-${r.slug}" style="${isAlmost?'border:1.5px solid #FFE0C0;':''}">
+    <div class="card-header" onclick="toggleFrigoCard('${r.slug}')">
+      <div class="card-icon-wrap${isC?' peach':''}"><i class="fa-solid fa-${isC?'apple-whole':'jar'}"></i></div>
+      <div class="card-info">
+        <div class="card-name">${r.nom}</div>
+        <div class="card-tags">
+          <span class="tag tag-cat"><i class="fa-solid fa-tag"></i>${r.categorie}</span>
+          ${ageLabel}
+          ${r.favori?'<span class="tag tag-fav"><i class="fa-solid fa-star"></i>Favori</span>':''}
+        </div>
+      </div>
+      <div class="card-actions">
+        <button class="btn-fav${r.favori?' on':''}" onclick="event.stopPropagation();toggleFavFrigo('${r.slug}','${section}')"><i class="fa-${r.favori?'solid':'regular'} fa-star"></i></button>
+        <button class="btn-cart${inCart?' in-cart':''}" onclick="event.stopPropagation();toggleCart('${r.slug}','${section}')"><i class="fa-solid fa-${inCart?'check':'plus'}"></i>${inCart?'Ajouté':'Panier'}</button>
+        <button class="chevron-btn" id="fchev-${r.slug}"><i class="fa-solid fa-chevron-down"></i></button>
+      </div>
+    </div>
+    ${isAlmost?`<div style="padding:0 14px 10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+      <span style="font-size:0.68rem;font-weight:800;text-transform:uppercase;letter-spacing:0.3px;color:var(--warn);display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-cart-shopping" style="font-size:0.6rem;"></i>À acheter :</span>
+      ${missing.map(i=>`<span style="background:#FFF0E0;color:#B85C00;border:1px solid #FFD0A0;border-radius:20px;font-size:0.73rem;font-weight:700;padding:3px 10px;display:inline-flex;align-items:center;gap:4px;"><i class="fa-solid fa-plus" style="font-size:0.5rem;"></i>${i.nom}</span>`).join('')}
+    </div>`:`<div class="match-ok"><i class="fa-solid fa-circle-check"></i>Tu as tout ce qu'il faut !</div>`}
+    <div class="card-body" id="fbody-${r.slug}">
+      ${textureTag}
+      <div class="nutri-bar-wrap">
+        <div class="nutri-bar-row"><span class="nutri-bar-label">Légumes</span><div class="nutri-bar-track"><div class="nutri-bar-fill fill-legume" style="width:${n.legPct}%"></div></div><span class="nutri-bar-val">${n.leg}g</span></div>
+        <div class="nutri-bar-row"><span class="nutri-bar-label">Protéines</span><div class="nutri-bar-track"><div class="nutri-bar-fill fill-proteine" style="width:${n.protPct}%"></div></div><span class="nutri-bar-val">${n.prot}g</span></div>
+        <div class="nutri-bar-row"><span class="nutri-bar-label">Féculents</span><div class="nutri-bar-track"><div class="nutri-bar-fill fill-feculent" style="width:${n.fecPct}%"></div></div><span class="nutri-bar-val">${n.fec}g</span></div>
+      </div>
+      <div class="card-section-label"><i class="fa-solid fa-list"></i>Ingrédients</div>
+      <table class="ing-table">${r.ingredients.map(i=>{
+        const isMiss=missing.some(m=>m.nom===i.nom);
+        return`<tr style="${isMiss?'background:#FFF8F0;':''}"><td style="${isMiss?'color:#B85C00;font-weight:800;':''}">${isMiss?'<i class="fa-solid fa-cart-shopping" style="font-size:0.6rem;color:var(--warn);margin-right:4px;"></i>':''}${i.nom}</td><td>${i.quantite} ${i.unite}</td><td><span class="type-pill t-${i.type}">${TYPE_LABELS[i.type]||i.type}</span></td></tr>`;
+      }).join('')}</table>
+      <div class="card-section-label"><i class="fa-solid fa-list-ol"></i>Préparation</div>
+      <ol class="steps-list">${r.etapes.map(e=>`<li>${e}</li>`).join('')}</ol>
+    </div>
+  </div>`;
+}
 function openRecipeModal(slug,section){
   const r=DB[section].find(x=>x.slug===slug);
   if(!r)return;
@@ -1161,6 +1300,23 @@ function modalToggleCart(){
   renderFrigoMatches();
 }
 
+function toggleFrigoCard(slug){
+  const body=document.getElementById('fbody-'+slug);
+  const chev=document.getElementById('fchev-'+slug);
+  if(!body)return;
+  const open=body.classList.toggle('visible');
+  chev.classList.toggle('open',open);
+}
+
+function toggleFavFrigo(slug,section){
+  const r=DB[section].find(r=>r.slug===slug);
+  if(!r)return;
+  r.favori=!r.favori;
+  save();
+  renderFrigoMatches();
+  showToast(r.favori?'Ajouté aux favoris':'Retiré des favoris');
+}
+
 function closeRecipeModal(){
   document.getElementById('recipe-modal').style.display='none';
   currentModalRecipe=null;currentModalSection=null;
@@ -1168,6 +1324,21 @@ function closeRecipeModal(){
 
 function initFrigo(){
   renderFrigoMatches();
+  updateFrigoClearBtn();
+}
+
+function updateFrigoClearBtn(){
+  const btn=document.getElementById('btn-clear-frigo');
+  if(!btn)return;
+  btn.style.display=frigo.length?'inline-flex':'none';
+}
+
+function clearFrigo(){
+  frigo=[];
+  save();
+  renderFrigoMatches();
+  updateFrigoClearBtn();
+  showToast('Frigo vidé');
 }
 // ═══════ CONFIRM ═══════
 let confirmCallback=null;
