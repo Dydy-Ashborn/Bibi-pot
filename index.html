@@ -326,7 +326,7 @@ body{font-family:'Nunito',sans-serif;background:var(--sand);color:var(--slate);h
       </div>
     </div>
     <div id="ob-err" style="display:none;color:var(--danger);font-size:0.8rem;font-weight:700;margin-bottom:10px;padding:8px 12px;background:#FFF0EC;border-radius:8px;border-left:3px solid var(--danger);"></div>
-    <button onclick="obFinish()" style="width:100%;padding:15px;background:var(--green);border:none;border-radius:var(--radius);color:white;font-family:'Nunito',sans-serif;font-size:1rem;font-weight:900;cursor:pointer;box-shadow:0 4px 16px rgba(45,106,79,0.28);display:flex;align-items:center;justify-content:center;gap:8px;"><i class="fa-solid fa-arrow-right"></i>Commencer</button>
+    <button id="ob-btn" style="width:100%;padding:15px;background:var(--green);border:none;border-radius:var(--radius);color:white;font-family:'Nunito',sans-serif;font-size:1rem;font-weight:900;cursor:pointer;box-shadow:0 4px 16px rgba(45,106,79,0.28);display:flex;align-items:center;justify-content:center;gap:8px;"><i class="fa-solid fa-arrow-right"></i>Commencer</button>
   </div>
 </div>
 
@@ -385,17 +385,18 @@ body{font-family:'Nunito',sans-serif;background:var(--sand);color:var(--slate);h
   </div>
 
   <!-- MON FRIGO -->
-  <div class="page" id="page-frigo">
-    <div class="page-title">
-      <div class="page-title-left"><i class="fa-solid fa-refrigerator"></i>Mon frigo</div>
-    </div>
-    <div class="search-wrap">
-      <i class="fa-solid fa-magnifying-glass"></i>
-      <input class="search-input" type="text" id="frigo-search-input" placeholder="Chercher un ingrédient…" oninput="renderFrigoIngredients(this.value)">
-    </div>
-    <div id="frigo-ingredients-panel"></div>
-    <div id="frigo-results-panel"></div>
+<div class="page" id="page-frigo">
+  <div class="page-title">
+    <div class="page-title-left"><i class="fa-solid fa-temperature-low"></i>Mon frigo</div>
   </div>
+  <div style="text-align:center;padding:32px 20px 20px;">
+    <div style="width:72px;height:72px;background:var(--green-pale);border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;"><i class="fa-solid fa-temperature-low" style="font-size:2rem;color:var(--green);"></i></div>
+    <div style="font-size:1.1rem;font-weight:900;color:var(--slate);margin-bottom:8px;">Qu'est-ce qu'il y a dans ton frigo ?</div>
+    <div style="font-size:0.85rem;font-weight:600;color:var(--slate-light);margin-bottom:24px;line-height:1.5;">Coche tes ingrédients et on te propose les recettes faisables.</div>
+    <button onclick="startFrigoWizard()" style="background:var(--green);color:white;border:none;border-radius:var(--radius);padding:14px 28px;font-family:'Nunito',sans-serif;font-size:1rem;font-weight:800;cursor:pointer;box-shadow:0 3px 12px rgba(45,106,79,0.25);display:inline-flex;align-items:center;gap:8px;"><i class="fa-solid fa-wand-magic-sparkles"></i>Mon frigo</button>
+  </div>
+  <div id="frigo-matches-panel"></div>
+</div>
 
   <!-- PANIER -->
   <div class="page" id="page-panier">
@@ -451,7 +452,7 @@ body{font-family:'Nunito',sans-serif;background:var(--sand);color:var(--slate);h
 <nav class="bottom-nav">
   <button class="nav-item active" id="nav-pots" onclick="goTo('pots')"><i class="fa-solid fa-jar"></i><span>Pots</span></button>
   <button class="nav-item" id="nav-compotes" onclick="goTo('compotes')"><i class="fa-solid fa-apple-whole"></i><span>Compotes</span></button>
-  <button class="nav-item" id="nav-frigo" onclick="goTo('frigo')"><i class="fa-solid fa-refrigerator"></i><span>Frigo</span></button>
+  <button class="nav-item" id="nav-frigo" onclick="goTo('frigo')"><i class="fa-solid fa-temperature-low"></i><span>Frigo</span></button>
   <button class="nav-item" id="nav-panier" onclick="goTo('panier')"><i class="fa-solid fa-basket-shopping"></i><span>Panier</span><div class="nav-badge" id="nav-badge" style="display:none">0</div></button>
   <button class="nav-item" id="nav-profil" onclick="goTo('profil')"><i class="fa-solid fa-user"></i><span>Profil</span></button>
 </nav>
@@ -468,7 +469,34 @@ body{font-family:'Nunito',sans-serif;background:var(--sand);color:var(--slate);h
   </div>
 </div>
 <div class="toast" id="toast"><i class="fa-solid fa-circle-check"></i><span id="toast-msg"></span></div>
+<div id="frigo-wizard" style="position:fixed;inset:0;z-index:200;display:none;flex-direction:column;background:var(--sand);">
+  <div style="background:var(--white);border-bottom:1.5px solid var(--sand-dark);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;">
+    <div style="font-size:1rem;font-weight:900;color:var(--slate);" id="wizard-title">Légumes</div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span style="font-size:0.72rem;font-weight:700;color:var(--slate-light);" id="wizard-step">1 / 5</span>
+      <button onclick="closeWizard()" style="background:none;border:none;cursor:pointer;color:var(--slate-light);font-size:1.1rem;padding:4px;"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+  </div>
+  <div style="height:4px;background:var(--sand-dark);"><div id="wizard-progress" style="height:100%;background:var(--green);border-radius:0 2px 2px 0;transition:width 0.3s;"></div></div>
+  <div style="flex:1;overflow-y:auto;padding:20px 16px 100px;" id="wizard-body"></div>
+  <div style="position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:1.5px solid var(--sand-dark);padding:14px 18px;display:flex;gap:10px;max-width:600px;margin:0 auto;">
+    <button id="wizard-back-btn" onclick="wizardBack()" style="flex:1;padding:13px;border:1.5px solid var(--sand-dark);border-radius:var(--radius);background:white;cursor:pointer;font-family:'Nunito',sans-serif;font-size:0.95rem;font-weight:700;color:var(--slate-mid);display:flex;align-items:center;justify-content:center;gap:6px;"><i class="fa-solid fa-arrow-left"></i>Retour</button>
+    <button id="wizard-next-btn" onclick="wizardNext()" style="flex:2;padding:13px;border:none;border-radius:var(--radius);background:var(--green);cursor:pointer;font-family:'Nunito',sans-serif;font-size:0.95rem;font-weight:800;color:white;display:flex;align-items:center;justify-content:center;gap:6px;">Suivant<i class="fa-solid fa-arrow-right"></i></button>
+  </div>
+</div>
 
+<!-- MODALE RECETTE FRIGO -->
+<div id="recipe-modal" style="position:fixed;inset:0;z-index:250;display:none;flex-direction:column;background:var(--white);">
+  <div style="background:var(--white);border-bottom:1.5px solid var(--sand-dark);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+    <div style="font-size:1rem;font-weight:900;color:var(--slate);" id="modal-recipe-title">Recette</div>
+    <button onclick="closeRecipeModal()" style="background:none;border:none;cursor:pointer;color:var(--slate-light);font-size:1.1rem;padding:4px;"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:16px 16px 100px;" id="modal-recipe-body"></div>
+  <div style="position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:1.5px solid var(--sand-dark);padding:14px 18px;display:flex;gap:10px;max-width:600px;margin:0 auto;">
+    <button id="modal-fav-btn" onclick="modalToggleFav()" style="flex:1;padding:13px;border:1.5px solid var(--sand-dark);border-radius:var(--radius);background:white;cursor:pointer;font-family:'Nunito',sans-serif;font-size:0.88rem;font-weight:700;color:var(--slate-mid);display:flex;align-items:center;justify-content:center;gap:6px;"><i class="fa-regular fa-star"></i>Favori</button>
+    <button id="modal-cart-btn" onclick="modalToggleCart()" style="flex:2;padding:13px;border:none;border-radius:var(--radius);background:var(--green);cursor:pointer;font-family:'Nunito',sans-serif;font-size:0.95rem;font-weight:800;color:white;display:flex;align-items:center;justify-content:center;gap:6px;"><i class="fa-solid fa-plus"></i>Ajouter au panier</button>
+  </div>
+</div>
 <script>
 // ═══════ STATE ═══════
 const DB={pots:[],compotes:[]};
@@ -481,24 +509,35 @@ let activeSeason='all';
 let activeFrigoTab='stock';
 const CURRENT_MONTH=new Date().getMonth()+1;
 
+
 function save(){
   try{
-    localStorage.setItem('bibipot_pots',JSON.stringify(DB.pots));
-    localStorage.setItem('bibipot_compotes',JSON.stringify(DB.compotes));
     localStorage.setItem('bibipot_cart',JSON.stringify(cart));
     localStorage.setItem('bibipot_profile',JSON.stringify(profile));
     localStorage.setItem('bibipot_frigo',JSON.stringify(frigo));
+    // Favoris uniquement
+    const favsPots=DB.pots.filter(r=>r.favori).map(r=>r.slug);
+    const favsCompotes=DB.compotes.filter(r=>r.favori).map(r=>r.slug);
+    localStorage.setItem('bibipot_favs_pots',JSON.stringify(favsPots));
+    localStorage.setItem('bibipot_favs_compotes',JSON.stringify(favsCompotes));
   }catch(e){}
 }
 function load(){
   try{
-    DB.pots=JSON.parse(localStorage.getItem('bibipot_pots'))||DEFAULT_POTS;
-    DB.compotes=JSON.parse(localStorage.getItem('bibipot_compotes'))||DEFAULT_COMPOTES;
+    DB.pots=DEFAULT_POTS.map(r=>({...r,favori:false}));
+    DB.compotes=DEFAULT_COMPOTES.map(r=>({...r,favori:false}));
+    const favsPots=JSON.parse(localStorage.getItem('bibipot_favs_pots'))||[];
+    const favsCompotes=JSON.parse(localStorage.getItem('bibipot_favs_compotes'))||[];
+    DB.pots.forEach(r=>{if(favsPots.includes(r.slug))r.favori=true;});
+    DB.compotes.forEach(r=>{if(favsCompotes.includes(r.slug))r.favori=true;});
     cart=JSON.parse(localStorage.getItem('bibipot_cart'))||{};
     frigo=JSON.parse(localStorage.getItem('bibipot_frigo'))||[];
     const p=JSON.parse(localStorage.getItem('bibipot_profile'));
     if(p)Object.assign(profile,p);
-  }catch(e){DB.pots=DEFAULT_POTS;DB.compotes=DEFAULT_COMPOTES;}
+  }catch(e){
+    DB.pots=DEFAULT_POTS.map(r=>({...r,favori:false}));
+    DB.compotes=DEFAULT_COMPOTES.map(r=>({...r,favori:false}));
+  }
 }
 
 // ═══════ SAISONS ═══════
@@ -778,30 +817,25 @@ function renderAgeBanner(){
   if(!a){el.innerHTML='';return;}
   const tier=getAgeTier(a);
   const count=DEFAULT_POTS.filter(r=>r.age_min<=a).length;
-  el.innerHTML=`<div class="age-banner"><i class="fa-solid fa-baby"></i><div><div class="age-banner-title">Pour ${profile.prenom} — ${tier.desc}</div><div class="age-banner-sub">${count} recette${count!==1?'s':''} adaptée${count!==1?'s':''} · Les autres sont grisées</div></div></div>`;
+  el.innerHTML=`<div class="age-banner"><i class="fa-solid fa-baby"></i><div><div class="age-banner-title">Pour ${profile.prenom} — ${tier.desc}</div><div class="age-banner-sub">${count} recette${count!==1?'s':''} adaptée${count!==1?'s':''} · Les autres sont masquées</div></div></div>`;
 }
 
 function getFiltered(section){
   let recipes=DB[section];
   const q=searchQuery[section].toLowerCase().trim();
   const f=activeFilter[section];
+  const a=ageInMonths();
+  if(section==='pots'&&a>0){
+    const tier=getAgeTier(a);
+    recipes=recipes.filter(r=>r.age_min>=tier.min&&r.age_min<=tier.max);
+  }
+  if(section==='pots'&&activeSeason!=='all')recipes=recipes.filter(r=>recipeInSeason(r,activeSeason));
   if(q)recipes=recipes.filter(r=>r.nom.toLowerCase().includes(q)||r.categorie.toLowerCase().includes(q)||r.ingredients.some(i=>i.nom.toLowerCase().includes(q)));
   if(f==='fav')recipes=recipes.filter(r=>r.favori);
   else if(f!=='all')recipes=recipes.filter(r=>r.categorie===f);
-  if(section==='pots'){
-    recipes=recipes.slice().sort((a,b)=>{
-      const aOk=recipeOkForAge(a);const bOk=recipeOkForAge(b);
-      if(aOk!==bOk)return bOk?1:-1;
-      if(activeSeason!=='all'){
-        const aS=recipeInSeason(a,activeSeason);const bS=recipeInSeason(b,activeSeason);
-        if(aS!==bS)return bS?1:-1;
-      }
-      return (a.age_min||0)-(b.age_min||0);
-    });
-  }
+  if(section==='pots')recipes=recipes.slice().sort((a,b)=>(a.age_min||0)-(b.age_min||0));
   return recipes;
 }
-
 function renderSection(section){
   const all=DB[section];
   const filtered=getFiltered(section);
@@ -834,22 +868,15 @@ function getNutri(r){
   const total=leg+prot+fec||1;
   return{leg,prot,fec,legPct:Math.round(leg/total*100),protPct:Math.round(prot/total*100),fecPct:Math.round(fec/total*100)};
 }
-
 function cardHTML(r,section){
   const inCart=!!cart[r.slug];
   const isC=section==='compotes';
   const n=getNutri(r);
   const inSeason=recipeInSeason(r,activeSeason);
-  const ageOk=recipeOkForAge(r);
   const dots=getSeasonDots(r);
   const ageLabel=r.age_min!==undefined?getAgeLabel(r.age_min):'';
-  let ageNotice='';
-  if(!ageOk&&ageInMonths()&&r.age_min){
-    const diff=r.age_min-ageInMonths();
-    ageNotice=`<div class="age-notice"><i class="fa-solid fa-clock"></i>Recommandé à partir de ${r.age_min} mois${diff>0?' — encore '+diff+' mois':''}</div>`;
-  }
   const textureTag=r.texture?`<div class="texture-tag"><i class="fa-solid fa-blender"></i>${r.texture}</div>`:'';
-  return`<div class="recipe-card${!inSeason&&activeSeason!=='all'?' out-of-season':''}${!ageOk?' age-locked':''}" id="card-${r.slug}">
+  return`<div class="recipe-card${!inSeason&&activeSeason!=='all'?' out-of-season':''}" id="card-${r.slug}">
     <div class="card-header" onclick="toggleCard('${r.slug}')">
       <div class="card-icon-wrap${isC?' peach':''}"><i class="fa-solid fa-${isC?'apple-whole':'jar'}"></i></div>
       <div class="card-info">
@@ -868,7 +895,7 @@ function cardHTML(r,section){
       </div>
     </div>
     <div class="card-body" id="body-${r.slug}">
-      ${ageNotice}${textureTag}
+      ${textureTag}
       <div class="nutri-bar-wrap">
         <div class="nutri-bar-row"><span class="nutri-bar-label">Légumes</span><div class="nutri-bar-track"><div class="nutri-bar-fill fill-legume" style="width:${n.legPct}%"></div></div><span class="nutri-bar-val">${n.leg}g</span></div>
         <div class="nutri-bar-row"><span class="nutri-bar-label">Protéines</span><div class="nutri-bar-track"><div class="nutri-bar-fill fill-proteine" style="width:${n.protPct}%"></div></div><span class="nutri-bar-val">${n.prot}g</span></div>
@@ -881,7 +908,6 @@ function cardHTML(r,section){
     </div>
   </div>`;
 }
-
 function toggleCard(slug){
   const body=document.getElementById('body-'+slug);
   const chev=document.getElementById('chev-'+slug);
@@ -935,13 +961,13 @@ function renderCart(){
   shopping.style.display='block';renderShopping(items);
 }
 function cartQty(slug,d){if(!cart[slug])return;cart[slug].qty=Math.max(1,cart[slug].qty+d);save();renderCart();}
+
+
 function askRemoveCart(slug){
-  showConfirm('Retirer du panier ?','Cette recette sera retirée de votre panier.',()=>{
-    const section=cart[slug]?.section;
-    const el=document.getElementById('ci-'+slug);
-    if(el){el.classList.add('removing');setTimeout(()=>{delete cart[slug];updateBadge();if(section)renderSection(section);save();renderCart();},200);}
-    else{delete cart[slug];updateBadge();if(section)renderSection(section);save();renderCart();}
-  });
+  const section=cart[slug]?.section;
+  const el=document.getElementById('ci-'+slug);
+  if(el){el.classList.add('removing');setTimeout(()=>{delete cart[slug];updateBadge();if(section)renderSection(section);save();renderCart();},200);}
+  else{delete cart[slug];updateBadge();if(section)renderSection(section);save();renderCart();}
 }
 function buildShoppingData(items){
   const groups={};
@@ -964,183 +990,185 @@ function renderShopping(items){
 }
 function buildListText(){
   const items=Object.values(cart);
-  let txt=`LISTE DE COURSES — Bibi Pot'
-Pour ${profile.prenom||'bébé'} (${profile.age} ${profile.unite})
-
-`;
+  let txt=`LISTE DE COURSES — Bibi Pot'\nPour ${profile.prenom||'bébé'} (${profile.age} ${profile.unite})\n\n`;
   const groups=buildShoppingData(items);
-  Object.entries(groups).forEach(([type,ings])=>{const g=GRP_LABELS[type]||{label:type};txt+=g.label.toUpperCase()+'
-';Object.values(ings).forEach(i=>{txt+=`  - ${i.nom} : ${i.quantite} ${i.unite}
-`;});txt+='
-';});
+  Object.entries(groups).forEach(([type,ings])=>{
+    const g=GRP_LABELS[type]||{label:type};
+    txt+=g.label.toUpperCase()+'\n';
+    Object.values(ings).forEach(i=>{txt+=`  - ${i.nom} : ${i.quantite} ${i.unite}\n`;});
+    txt+='\n';
+  });
   return txt;
 }
 function copyList(){if(!Object.keys(cart).length)return;const txt=buildListText();if(navigator.clipboard)navigator.clipboard.writeText(txt).then(()=>showToast('Liste copiée'));}
 function shareList(){if(!Object.keys(cart).length)return;const txt=buildListText();if(navigator.share)navigator.share({title:"Bibi Pot' — Liste de courses",text:txt}).catch(()=>{});else copyList();}
 
-// ═══════ MON FRIGO — REDESIGN ═══════
-function initFrigo(){
-  renderFrigoStock('');
-  renderFrigoMatches();
-  updateFrigoBadges();
+// ═══════ FRIGO WIZARD ═══════
+const WIZARD_CATS=Object.keys(FRIGO_DATA);
+let wizardStep=0;
+let currentModalRecipe=null;
+let currentModalSection=null;
+
+function startFrigoWizard(){
+  wizardStep=0;
+  const w=document.getElementById('frigo-wizard');
+  w.style.display='flex';
+  renderWizardStep();
 }
 
-function switchFrigoTab(tab){
-  activeFrigoTab=tab;
-  document.getElementById('ftab-stock').classList.toggle('active',tab==='stock');
-  document.getElementById('ftab-results').classList.toggle('active',tab==='results');
-  document.getElementById('frigo-stock-view').style.display=tab==='stock'?'block':'none';
-  document.getElementById('frigo-results-view').style.display=tab==='results'?'block':'none';
-  if(tab==='results')renderFrigoMatches();
+function closeWizard(){
+  document.getElementById('frigo-wizard').style.display='none';
+  renderFrigoMatches();
+}
+
+function renderWizardStep(){
+  const catKey=WIZARD_CATS[wizardStep];
+  const cat=FRIGO_DATA[catKey];
+  const total=WIZARD_CATS.length;
+  document.getElementById('wizard-title').textContent=cat.label;
+  document.getElementById('wizard-step').textContent=(wizardStep+1)+' / '+total;
+  document.getElementById('wizard-progress').style.width=((wizardStep+1)/total*100)+'%';
+  document.getElementById('wizard-back-btn').style.opacity=wizardStep===0?'0.3':'1';
+  document.getElementById('wizard-back-btn').disabled=wizardStep===0;
+  const isLast=wizardStep===total-1;
+  document.getElementById('wizard-next-btn').innerHTML=isLast?'<i class="fa-solid fa-wand-magic-sparkles"></i>Voir les recettes':'Suivant<i class="fa-solid fa-arrow-right"></i>';
+  const body=document.getElementById('wizard-body');
+  body.innerHTML=`<div style="font-size:0.8rem;font-weight:600;color:var(--slate-light);margin-bottom:14px;line-height:1.5;">Coche ce que tu as dans ton frigo :</div>
+  <div class="frigo-ing-grid">${cat.items.map(item=>{
+    const sel=frigo.some(f=>f.toLowerCase()===item.n.toLowerCase());
+    return`<button class="frigo-ing-btn${sel?' selected':''}" data-nom="${item.n}" onclick="toggleFrigoItem('${item.n}')">
+      <div class="chk-dot" style="display:${sel?'flex':'none'}"><i class="fa-solid fa-check"></i></div>
+      <i class="fa-solid ${item.i} ii"></i>${item.n}
+    </button>`;
+  }).join('')}</div>`;
+}
+
+function wizardNext(){
+  if(wizardStep<WIZARD_CATS.length-1){wizardStep++;renderWizardStep();}
+  else{closeWizard();}
+}
+
+function wizardBack(){
+  if(wizardStep>0){wizardStep--;renderWizardStep();}
 }
 
 function toggleFrigoItem(nom){
   const idx=frigo.findIndex(f=>f.toLowerCase()===nom.toLowerCase());
   if(idx>=0)frigo.splice(idx,1);else frigo.push(nom);
   save();
-  const btn=document.querySelector(`.frigo-ing-btn[data-nom="${nom}"]`);
-  if(btn){
+  const btns=document.querySelectorAll(`.frigo-ing-btn[data-nom="${nom}"]`);
+  btns.forEach(btn=>{
     const sel=frigo.some(f=>f.toLowerCase()===nom.toLowerCase());
     btn.classList.toggle('selected',sel);
     const dot=btn.querySelector('.chk-dot');
     if(dot)dot.style.display=sel?'flex':'none';
-    // Update category count
-    const catBody=btn.closest('.frigo-cat-body');
-    if(catBody){
-      const catId=catBody.id.replace('body-cat-','');
-      updateCatCount(catId);
-    }
-  }
-  updateFrigoBadges();
-  if(activeFrigoTab==='results')renderFrigoMatches();
-}
-
-function updateCatCount(catKey){
-  const countEl=document.querySelector(`#body-cat-${catKey}`);
-  if(!countEl)return;
-  const buttons=countEl.querySelectorAll('.frigo-ing-btn');
-  const catData=FRIGO_DATA[catKey];
-  if(!catData)return;
-  const total=catData.items.length;
-  const sel=catData.items.filter(item=>frigo.some(f=>f.toLowerCase()===item.n.toLowerCase())).length;
-  const badge=document.querySelector(`#chev-cat-${catKey}`).previousElementSibling;
-  if(badge){badge.textContent=sel>0?sel+'/'+total:total;badge.className='frigo-cat-count'+(sel>0?' has':'');}
-}
-
-function updateFrigoBadges(){
-  const n=frigo.length;
-  const cb=document.getElementById('frigo-cnt-badge');
-  if(cb){cb.style.display=n?'inline-flex':'none';cb.textContent=n;}
-  const matches=getFrigoMatches();
-  const rb=document.getElementById('frigo-res-badge');
-  if(rb){rb.style.display=matches.length?'inline-flex':'none';rb.textContent=matches.length;}
-}
-
-function clearFrigo(){
-  if(!frigo.length)return;
-  showConfirm('Vider le frigo ?','Tous les ingrédients sélectionnés seront effacés.',()=>{
-    frigo=[];save();
-    renderFrigoStock(document.getElementById('frigo-search-input').value||'');
-    updateFrigoBadges();
-    if(activeFrigoTab==='results')renderFrigoMatches();
   });
-}
-
-function renderFrigoStock(query){
-  const q=query.toLowerCase().trim();
-  const panel=document.getElementById('frigo-cats-panel');
-  if(!panel)return;
-  let html='';
-  for(const[catKey,cat]of Object.entries(FRIGO_DATA)){
-    const items=q?cat.items.filter(item=>item.n.toLowerCase().includes(q)):cat.items;
-    if(!items.length)continue;
-    const selCount=items.filter(item=>frigo.some(f=>f.toLowerCase()===item.n.toLowerCase())).length;
-    const isOpen=selCount>0||!q;
-    html+=`<div class="frigo-cat">
-      <div class="frigo-cat-header" onclick="toggleFrigoCat('${catKey}')">
-        <div class="frigo-cat-icon ci-${cat.cls}"><i class="fa-solid ${cat.icon}"></i></div>
-        <span class="frigo-cat-name">${cat.label}</span>
-        <span class="frigo-cat-count${selCount>0?' has':''}" id="cnt-cat-${catKey}">${selCount>0?selCount+'/'+items.length:items.length}</span>
-        <i class="fa-solid fa-chevron-down frigo-cat-chev${isOpen?' open':''}" id="chev-cat-${catKey}"></i>
-      </div>
-      <div class="frigo-cat-body${isOpen?' open':''}" id="body-cat-${catKey}">
-        <div class="frigo-ing-grid">
-          ${items.map(item=>{
-            const sel=frigo.some(f=>f.toLowerCase()===item.n.toLowerCase());
-            return`<button class="frigo-ing-btn${sel?' selected':''}" data-nom="${item.n}" onclick="toggleFrigoItem('${item.n}')">
-              <div class="chk-dot" style="display:${sel?'flex':'none'}"><i class="fa-solid fa-check"></i></div>
-              <i class="fa-solid ${item.i} ii"></i>${item.n}
-            </button>`;
-          }).join('')}
-        </div>
-      </div>
-    </div>`;
-  }
-  if(!html)html=`<div class="empty-state" style="padding:24px 0"><i class="fa-solid fa-magnifying-glass"></i><p>Aucun ingrédient trouvé.</p></div>`;
-  panel.innerHTML=html;
-  updateFrigoBadges();
-}
-
-function toggleFrigoCat(catKey){
-  const body=document.getElementById('body-cat-'+catKey);
-  const chev=document.getElementById('chev-cat-'+catKey);
-  const open=body.classList.toggle('open');
-  chev.classList.toggle('open',open);
 }
 
 function getFrigoMatches(){
   if(!frigo.length)return[];
+  const a=ageInMonths();
   const all=[...DB.pots.map(r=>({r,section:'pots'})),...DB.compotes.map(r=>({r,section:'compotes'}))];
-  return all.map(({r,section})=>{
+  return all.filter(({r,section})=>{
+    if(section==='pots'&&a>0){
+      const tier=getAgeTier(a);
+      if(r.age_min<tier.min||r.age_min>tier.max)return false;
+    }
     const mainIngs=r.ingredients.filter(i=>i.type!=='autre');
-    const matching=mainIngs.filter(i=>frigo.some(f=>i.nom.toLowerCase().includes(f.toLowerCase())||f.toLowerCase().includes(i.nom.toLowerCase().split(' ')[0])));
-    const missing=mainIngs.filter(i=>!frigo.some(f=>i.nom.toLowerCase().includes(f.toLowerCase())||f.toLowerCase().includes(i.nom.toLowerCase().split(' ')[0])));
-    const pct=Math.round(matching.length/mainIngs.length*100);
-    return{r,pct,matching,missing,section};
-  }).filter(x=>x.pct>0).sort((a,b)=>b.pct-a.pct);
+    return mainIngs.every(i=>frigo.some(f=>i.nom.toLowerCase().includes(f.toLowerCase())||f.toLowerCase().includes(i.nom.toLowerCase().split(' ')[0])));
+  }).map(({r,section})=>({r,section}));
 }
 
 function renderFrigoMatches(){
   const panel=document.getElementById('frigo-matches-panel');
   if(!panel)return;
   if(!frigo.length){
-    panel.innerHTML=`<div class="frigo-empty"><i class="fa-solid fa-refrigerator"></i><p>Coche tes ingrédients dans<br><span>Mon frigo</span><br>pour voir les recettes faisables !</p></div>`;
+    panel.innerHTML=``;
     return;
   }
   const matches=getFrigoMatches();
-  if(!matches.length){panel.innerHTML=`<div class="frigo-empty"><i class="fa-solid fa-face-sad-tear"></i><p>Aucune recette ne correspond<br>à tes ingrédients pour le moment.</p></div>`;return;}
-  const ageOkCount=ageInMonths()?matches.filter(m=>recipeOkForAge(m.r)).length:matches.length;
-  const circ=2*Math.PI*17;
-  panel.innerHTML=`<div class="frigo-summary">
-    <div class="frigo-summary-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
-    <div>
-      <div class="frigo-summary-n"><span>${matches.length}</span> recette${matches.length!==1?'s':''} trouvée${matches.length!==1?'s':''}</div>
-      <div class="frigo-summary-sub">${frigo.length} ingrédient${frigo.length!==1?'s':''} · ${ageOkCount} adaptée${ageOkCount!==1?'s':''} à l'âge</div>
-    </div>
-  </div>`+
-  matches.map(({r,pct,missing,section})=>{
+  if(!matches.length){
+    panel.innerHTML=`<div class="frigo-empty"><i class="fa-solid fa-face-sad-tear"></i><p>Aucune recette complète<br>avec tes ingrédients.</p></div>`;
+    return;
+  }
+  panel.innerHTML=`<div style="font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;color:var(--slate-light);margin-bottom:10px;display:flex;align-items:center;gap:6px;"><i class="fa-solid fa-wand-magic-sparkles" style="color:var(--green);font-size:0.68rem;"></i>${matches.length} recette${matches.length!==1?'s':''} réalisable${matches.length!==1?'s':''}</div>`+
+  matches.map(({r,section})=>{
     const inCart=!!cart[r.slug];
     const isC=section==='compotes';
-    const ageOk=recipeOkForAge(r);
-    const off=circ*(1-pct/100);
     const ageLabel=r.age_min!==undefined?getAgeLabel(r.age_min):'';
-    return`<div class="match-card${!ageOk?' age-locked':''}">
+    return`<div class="match-card" style="cursor:pointer;" onclick="openRecipeModal('${r.slug}','${section}')">
       <div class="match-inner">
-        <div class="ring-wrap">
-          <svg viewBox="0 0 44 44"><circle class="ring-bg" cx="22" cy="22" r="17"/><circle class="ring-fg${pct<100?' partial':''}" cx="22" cy="22" r="17" stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}"/></svg>
-          <div class="ring-label">${pct}%</div>
-        </div>
+        <div class="card-icon-wrap${isC?' peach':''}"><i class="fa-solid fa-${isC?'apple-whole':'jar'}"></i></div>
         <div class="match-info">
           <div class="match-name">${r.nom}</div>
           <div class="match-tags"><span class="tag tag-cat"><i class="fa-solid fa-tag"></i>${r.categorie}</span>${ageLabel}</div>
         </div>
-        <button class="btn-cart${inCart?' in-cart':''}" onclick="toggleCart('${r.slug}','${section}')"><i class="fa-solid fa-${inCart?'check':'plus'}"></i></button>
+        <button class="btn-cart${inCart?' in-cart':''}" onclick="event.stopPropagation();toggleCart('${r.slug}','${section}')"><i class="fa-solid fa-${inCart?'check':'plus'}"></i></button>
       </div>
-      ${missing.length?`<div class="match-missing"><div class="mm-label"><i class="fa-solid fa-cart-plus"></i>À acheter (${missing.length})</div>${missing.map(i=>`<span class="miss-pill">${i.nom}</span>`).join('')}</div>`:`<div class="match-ok"><i class="fa-solid fa-circle-check"></i>Tu as tout ce qu'il faut !</div>`}
+      <div class="match-ok"><i class="fa-solid fa-circle-check"></i>Tu as tout ce qu'il faut !</div>
     </div>`;
   }).join('');
 }
 
+function openRecipeModal(slug,section){
+  const r=DB[section].find(x=>x.slug===slug);
+  if(!r)return;
+  currentModalRecipe=r;
+  currentModalSection=section;
+  const n=getNutri(r);
+  document.getElementById('modal-recipe-title').textContent=r.nom;
+  document.getElementById('modal-recipe-body').innerHTML=`
+    ${r.texture?`<div class="texture-tag" style="margin-bottom:12px;"><i class="fa-solid fa-blender"></i>${r.texture}</div>`:''}
+    <div class="nutri-bar-wrap">
+      <div class="nutri-bar-row"><span class="nutri-bar-label">Légumes</span><div class="nutri-bar-track"><div class="nutri-bar-fill fill-legume" style="width:${n.legPct}%"></div></div><span class="nutri-bar-val">${n.leg}g</span></div>
+      <div class="nutri-bar-row"><span class="nutri-bar-label">Protéines</span><div class="nutri-bar-track"><div class="nutri-bar-fill fill-proteine" style="width:${n.protPct}%"></div></div><span class="nutri-bar-val">${n.prot}g</span></div>
+      <div class="nutri-bar-row"><span class="nutri-bar-label">Féculents</span><div class="nutri-bar-track"><div class="nutri-bar-fill fill-feculent" style="width:${n.fecPct}%"></div></div><span class="nutri-bar-val">${n.fec}g</span></div>
+    </div>
+    <div class="card-section-label"><i class="fa-solid fa-list"></i>Ingrédients</div>
+    <table class="ing-table">${r.ingredients.map(i=>`<tr><td>${i.nom}</td><td>${i.quantite} ${i.unite}</td><td><span class="type-pill t-${i.type}">${TYPE_LABELS[i.type]||i.type}</span></td></tr>`).join('')}</table>
+    <div class="card-section-label"><i class="fa-solid fa-list-ol"></i>Préparation</div>
+    <ol class="steps-list">${r.etapes.map(e=>`<li>${e}</li>`).join('')}</ol>
+  `;
+  updateModalButtons();
+  document.getElementById('recipe-modal').style.display='flex';
+}
+
+function updateModalButtons(){
+  const r=currentModalRecipe;
+  const section=currentModalSection;
+  if(!r)return;
+  const inCart=!!cart[r.slug];
+  const favBtn=document.getElementById('modal-fav-btn');
+  const cartBtn=document.getElementById('modal-cart-btn');
+  favBtn.innerHTML=r.favori?'<i class="fa-solid fa-star" style="color:#C8960C;"></i>Favori':'<i class="fa-regular fa-star"></i>Favori';
+  favBtn.style.borderColor=r.favori?'#C8960C':'var(--sand-dark)';
+  cartBtn.innerHTML=inCart?'<i class="fa-solid fa-check"></i>Ajouté':'<i class="fa-solid fa-plus"></i>Ajouter au panier';
+  cartBtn.style.background=inCart?'var(--sand-dark)':'var(--green)';
+  cartBtn.style.color=inCart?'var(--slate-mid)':'white';
+}
+
+function modalToggleFav(){
+  if(!currentModalRecipe)return;
+  currentModalRecipe.favori=!currentModalRecipe.favori;
+  save();updateModalButtons();
+  showToast(currentModalRecipe.favori?'Ajouté aux favoris':'Retiré des favoris');
+}
+
+function modalToggleCart(){
+  if(!currentModalRecipe)return;
+  toggleCart(currentModalRecipe.slug,currentModalSection);
+  updateModalButtons();
+  renderFrigoMatches();
+}
+
+function closeRecipeModal(){
+  document.getElementById('recipe-modal').style.display='none';
+  currentModalRecipe=null;currentModalSection=null;
+}
+
+function initFrigo(){
+  renderFrigoMatches();
+}
 // ═══════ CONFIRM ═══════
 let confirmCallback=null;
 function showConfirm(title,msg,cb){confirmCallback=cb;document.getElementById('confirm-title').textContent=title;document.getElementById('confirm-msg').textContent=msg;document.getElementById('confirm-overlay').classList.add('open');}
@@ -1193,6 +1221,9 @@ function showToast(msg){
 }
 
 // ═══════ INIT ═══════
+// Wire onboarding button (script loads after HTML so inline onclick fails)
+document.getElementById('ob-btn').addEventListener('click', obFinish);
+
 load(); // charge DB + profile depuis localStorage
 if(localStorage.getItem('bibipot_onboarded')){
   // Utilisateur existant : cacher l'onboarding et tout afficher
